@@ -1,0 +1,239 @@
+{
+  "description": "This function allows you to import the contents of a CSV or XLS(X) file into a specific model",
+  "label": "Import CSV/XLS(X)",
+  "category": "Misc",
+  "icon": {
+    "color": "Orange",
+    "name": "UploadIcon"
+  },
+  "options": [
+    {
+      "name": "fileUrl",
+      "label": "URL to the import file",
+      "meta": {
+        "type": "Text",
+        "validations": {
+          "required": true
+        }
+      }
+    },
+    {
+      "info": "Enter the type of the import file. In general, the size of a CSV file can be larger than an XLS(X) file because an Excel spreadsheet also stores additional meta-data.",
+      "label": "Import file type",
+      "meta": {
+        "type": "Select",
+        "default": "csv",
+        "values": [
+          {
+            "label": "Comma-separated values (CSV)",
+            "value": "csv"
+          },
+          {
+            "label": "Excel spreadsheet (XLS or XLSX)",
+            "value": "xlsx"
+          }
+        ]
+      },
+      "name": "fileType"
+    },
+    {
+      "name": "csvDelimiter",
+      "label": "CSV delimiter",
+      "info": "Character that separates columns in the CSV. Use Auto-detect for normal cases; pick a specific value when auto-detect chooses the wrong one (e.g. a one-column CSV whose values contain commas). Ignored for XLS(X) imports.",
+      "meta": {
+        "type": "Select",
+        "default": "auto",
+        "values": [
+          { "label": "Auto-detect", "value": "auto" },
+          { "label": "Comma (,)", "value": "," },
+          { "label": "Semicolon (;)", "value": ";" },
+          { "label": "Tab", "value": "\t" },
+          { "label": "Pipe (|)", "value": "|" }
+        ]
+      },
+      "configuration": {
+        "dependsOn": [
+          { "option": "fileType", "value": "csv" }
+        ]
+      }
+    },
+    {
+      "meta": {
+        "type": "Model",
+        "validations": {
+          "required": true
+        }
+      },
+      "name": "model",
+      "label": "Import Model",
+      "info": "The model you want to import the data into."
+    },
+    {
+      "name": "defaultMappings",
+      "label": "Default mapping",
+      "info": "KEY = database name of the property or relation, VALUE = the property value or ID of the relational record.",
+      "meta": {
+        "type": "Map"
+      }
+    },
+    {
+      "name": "propertyMappings",
+      "label": "Import mapping",
+      "info": "KEY = import column name, VALUE = database name (in snake_case) of the property.",
+      "meta": {
+        "type": "Map"
+      }
+    },
+    {
+      "name": "propertyMappingsFormat",
+      "label": "Format mapping for import columns (only needed for checkbox, decimal, number and date/time properties)",
+      "info": "KEY = import column name, VALUE = format of the property. Allowed format values: \"checkbox\", \"decimal\", \"number\", \"text\", \"Date\", \"Time\", or \"Datetime\". For Date/Time/DateTime the notation is as follows: \"Date, <datefns format>\", i.e. \"Date, dd-MM-yyyy\". The format behind the comma needs to be entered in accordance with the date-fns format (i.e. dd-MM-yyyy or MM/dd/yyyy etc), see https://date-fns.org/v2.16.1/docs/format",
+      "meta": {
+        "type": "Map"
+      }
+    },
+    {
+      "name": "deduplicate",
+      "label": "Deduplicate records (update records if matched)",
+      "info": "When on, the import will try to update records (if they can be matched based ont he unique column name). Otherwise new records will be created. We advise you to turn on batched processing when this option is enables since this option has a performance impact and could prevent the action to finish within the alloted time frame for actions on our platform.",
+      "meta": {
+        "type": "Boolean"
+      }
+    },
+    {
+      "name": "uniqueRecordColumnName",
+      "info": "Import column name of the unique identifier for your records (this name has to be part of the mappings above).",
+      "label": "Unique record identifier (import column name)",
+      "meta": {
+        "type": "Text"
+      }
+    },
+    {
+      "name": "uniqueRecordColumnType",
+      "label": "Unique record type",
+      "info": "The type of the unique record column in Betty Blocks",
+      "meta": {
+        "type": "Select",
+        "values": [
+          { "label": "Id", "value": "id" },
+          { "label": "Text", "value": "text" },
+          { "label": "Number", "value": "number" },
+          { "label": "Decimal", "value": "decimal" }
+        ]
+      }
+    },
+    {
+      "name": "propertyMappingsUpdate",
+      "label": "Update import mapping for existing records (leave empty to use default)",
+      "info": "KEY = import column name, VALUE = database name (in snake_case) of the property.",
+      "meta": {
+        "type": "Map"
+      }
+    },
+    {
+      "name": "batched",
+      "label": "Turn on batched processing for the import",
+      "info": "When on, the system will use multiple calls (batches) for processing the import and store the progress in the model/properties selected below. This can be useful if you have huge amounts of data and the import can't finish in a single run.",
+      "meta": {
+        "type": "Boolean"
+      }
+    },
+    {
+      "meta": {
+        "type": "Model"
+      },
+      "name": "batchModel",
+      "label": "The model in which we store the batch size and current offset.",
+      "info": "The model to store the batch size and the offset while running the import."
+    },
+    {
+      "meta": {
+        "type": "Property",
+        "model": "batchModel",
+        "allowedKinds": ["INTEGER"]
+      },
+      "configuration": {
+        "dependsOn": [
+          {
+            "option": "batchModel",
+            "action": "CLEAR"
+          }
+        ]
+      },
+      "name": "batchSizeProperty",
+      "label": "The (number) property to store the size of each batch."
+    },
+    {
+      "name": "batchSize",
+      "label": "Batch size (number of records to process in a batch).",
+      "meta": {
+        "type": "Number",
+        "default": 1000
+      }
+    },
+    {
+      "meta": {
+        "type": "Property",
+        "model": "batchModel",
+        "allowedKinds": ["INTEGER"]
+      },
+      "configuration": {
+        "dependsOn": [
+          {
+            "option": "batchModel",
+            "action": "CLEAR"
+          }
+        ]
+      },
+      "name": "batchOffsetProperty",
+      "label": "The (number) property to store the offset while running the import."
+    },
+    {
+      "meta": {
+        "type": "Property",
+        "model": "batchModel"
+      },
+      "configuration": {
+        "dependsOn": [
+          {
+            "option": "batchModel",
+            "action": "CLEAR"
+          }
+        ]
+      },
+      "name": "batchFileNameProperty",
+      "label": "The (text) property to store the file name to uniquely identify this import."
+    },
+    {
+      "name": "logging",
+      "label": "Turn on logging for this step",
+      "info": "When on, the system logs will show information (i.e. the number of processed records and the time taken by this step).",
+      "meta": {
+        "type": "Boolean"
+      }
+    },
+    {
+      "name": "validateRequiredColumns",
+      "label": "Validate required columns",
+      "info": "When set to true, add an * after the name in the KEY fields of the import mapping to the columns that you would like to validate as required (for example: \"firstName*\")",
+      "meta": {
+        "type": "Boolean"
+      },
+      "advanced": true
+    },
+    {
+      "name": "result",
+      "label": "Result",
+      "meta": {
+        "type": "Output",
+        "validations": {
+          "required": true
+        },
+        "output": {
+          "type": "Text"
+        }
+      }
+    }
+  ],
+  "yields": "NONE"
+}

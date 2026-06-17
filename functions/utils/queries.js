@@ -1,3 +1,5 @@
+import { throwError } from "./helpers";
+
 const getOne = async (modelName, properties, where) => {
   const queryName = `one${modelName}`;
   const query = `{
@@ -18,8 +20,8 @@ const getOne = async (modelName, properties, where) => {
   return record;
 };
 
-const getAll = async (gqlQuery, skip, take, results) => {
-  const gqlResponse = await gql(gqlQuery, { skip, take });
+const getAll = async (gqlQuery, skip, take, results = [], variables = {}) => {
+  const gqlResponse = await gql(gqlQuery, { skip, take, ...variables });
   if (gqlResponse) {
     const gqlQueryObject = Object.values(gqlResponse)[0]; // the data object
     const tmpResults = Object.values(gqlQueryObject)[0]; // the all query object which contains the result and totalcount
@@ -34,7 +36,7 @@ const getAll = async (gqlQuery, skip, take, results) => {
       const newResults = [...results, ...tmpResults.results];
       results = newResults;
       if (skip <= tmpResults.totalCount) {
-        results = await getAll(gqlQuery, skip, take, results);
+        results = await getAll(gqlQuery, skip, take, results, variables);
       }
     }
   }

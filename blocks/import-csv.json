@@ -1,5 +1,5 @@
 {
-  "dependencies": ["lodash", "date-fns", "xlsx"],
-  "functions": ["importCsv 3.3"],
+  "dependencies": ["lodash", "date-fns", "xlsx", "papaparse"],
+  "functions": ["importCsv 3.4"],
   "includes": ["./functions/utils"]
 }
